@@ -1,0 +1,34 @@
+[tool.poetry]
+name = "cookiecutter_fastAPI"
+version = "0.1.0"
+description = ""
+authors = ["Martin <1403951401@qq.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+fastapi = "^0.63.0"
+uvicorn = { extras = ["standard"], version = "^0.13.4" }
+gunicorn = "^20.0.4"
+uvloop = { version = "^0.15.2", markers = "platform_system == 'Linux'" }
+python-multipart = "^0.0.5"
+aiofiles = "^0.6.0"
+orjson = "^3.5.0"
+requests-async = "^0.6.2"
+alembic = "^1.5.0"
+sqlalchemy = "1.4.0b3"
+psycopg2-binary = "^2.8.6"
+aioredis = "^1.3.1"
+loguru = "^0.5.3"
+asyncpg = "^0.21.0"
+
+[tool.poetry.dev-dependencies]
+pytest = "^5.2"
+
+[[tool.poetry.source]]
+name = "aliyun"
+url = "https://mirrors.aliyun.com/pypi/simple/"
+default = true
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
