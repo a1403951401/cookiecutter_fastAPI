@@ -6,11 +6,9 @@ from starlette.exceptions import HTTPException as SHTTPException
 
 from cookiecutter_fastAPI.config import config
 from cookiecutter_fastAPI.lib.json import dumps
-from cookiecutter_fastAPI.lib.log import logger
+from loguru import logger
 from cookiecutter_fastAPI.models.base.base_error import AccessTokenExpire, BaseError, BaseValueError
 from cookiecutter_fastAPI.models.base.base_response import BaseResponse
-
-pass_exception_log = (AccessTokenExpire)
 
 
 async def exception_handler(request: Request, e: Exception) -> Response:
@@ -60,7 +58,7 @@ async def exception_handler(request: Request, e: Exception) -> Response:
         "scope": request.scope,
     })
 
-    if not isinstance(e, pass_exception_log):
+    if not isinstance(e, config.LOG_PASS_EXCEPTION):
         logger.exception(
             "path={path} code={code} message={message}\n"
             "scope={scope}\n"

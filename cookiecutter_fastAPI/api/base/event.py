@@ -6,8 +6,8 @@ from starlette.responses import Response
 
 from cookiecutter_fastAPI.api.base.app import app
 from cookiecutter_fastAPI.api.base.exceptions import exception_handler
-from cookiecutter_fastAPI.lib.log import logger
-from cookiecutter_fastAPI.lib.postgresql import postgresql
+from loguru import logger
+from cookiecutter_fastAPI.lib.database import database
 from cookiecutter_fastAPI.lib.redis import redis
 
 
@@ -24,17 +24,24 @@ async def shutdown():
 
 @app.middleware("http")
 async def close_session(request: Request, call_next):
-    # 记录请求时间
+    # trace 信息
     before = time()
-    # 添加日志 traceId 跟踪
-    with logger.bin(Ts_Request_Id=request.headers.get('Ts-Request-Id', uuid4())):
+    trace_data = {
+        'Ts-Request-Id': request.headers.get('Ts-Request-Id', str(uuid4())),
+    }
+    with logger.contextualize(**trace_data):
         # 注入 sql Session
-        async with postgresql.session_maker():
+        async with database.session_maker():
             # 序列化异常
             try:
                 response: Response = await call_next(request)
             except Exception as e:
                 response: Response = await exception_handler(request, e)
-
-    response.headers["X-Response-Time"] = str(time() - before)
+    after = time()
+    response.headers.update({
+        'X-Request-After': str(after),
+        'X-Request-Before': str(before),
+        'X-Response-Time': str(after - before),
+        **trace_data
+    })
     return response

@@ -8,7 +8,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.50'
+          cpus: '0.20'
           memory: 256M
 
   postgres:
@@ -20,7 +20,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.50'
+          cpus: '0.20'
           memory: 256M
 
   cookiecutter_fast_api:
@@ -38,3 +38,18 @@ services:
     depends_on:
       - redis
       - postgres
+
+#  cookiecutter_fast_api_worker:
+#    build:
+#      context: .
+#      dockerfile: Dockerfile
+#    command: celery worker *
+#    env_file:
+#      - docker-compose.env
+#    environment:
+#      - DEBUG=true
+#    volumes:
+#      - ./:/app
+#    depends_on:
+#      - redis
+#      - postgres

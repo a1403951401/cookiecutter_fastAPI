@@ -1,12 +1,17 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+import sys
 from pathlib import Path
 from typing import Any
 from urllib.parse import quote_plus
 
+from fastapi import HTTPException as FHTTPException
+from fastapi.exceptions import RequestValidationError
 from pydantic import BaseSettings
+from starlette.exceptions import HTTPException as SHTTPException
 
 from cookiecutter_fastAPI.lib.json import dumps
+from cookiecutter_fastAPI.models.base.base_error import AccessTokenExpire
 
 
 class Config(BaseSettings):
@@ -14,12 +19,12 @@ class Config(BaseSettings):
     DB_ECHO: bool = False
     ENVIRONMENTS: str = "base"
     PROJECT_NAME: str = 'cookiecutter_fastAPI'
-    PROJECT_PATH: Path = Path(__file__).parent.resolve()
-    PACKAGE: str = __package__
+    PACKAGE: str = __package__.split('.')[0]
+    PROJECT_PATH: Path = Path(sys.path[0])
     RELEASE: str
     TAG: str
-    # 最大任务池大小
-    Pool_Size: int = 10
+    # 默认的视图载入路径，使用支持逗号分割 [xxx/xxx, xxx/xxx]
+    VIEW_PATH = 'api/views'
 
     # database
     DB_HOST: str = 'postgres'
@@ -36,6 +41,13 @@ class Config(BaseSettings):
     REDIS_DB: int = 0
     REDIS_PASSWORD: str = None
     REDIS_SOCKET_TIMEOUT: str = None
+
+    # 最大任务池大小
+    POOL_SIZE: int = 10
+
+    # 异常处理
+    LOG_PASS_EXCEPTION = (AccessTokenExpire)
+    EXCEPTION_LOG_HANDLER = [Exception, FHTTPException, SHTTPException, RequestValidationError]
 
     class Config:
         json_dumps = dumps
@@ -71,6 +83,3 @@ class Config(BaseSettings):
             with open(release_file, 'r') as f:
                 return f.read()
         return "1.0.0"
-
-
-config = Config()
