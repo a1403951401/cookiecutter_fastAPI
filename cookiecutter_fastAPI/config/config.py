@@ -20,18 +20,20 @@ class Config(BaseSettings):
     ENVIRONMENTS: str = "base"
     PROJECT_NAME: str = 'cookiecutter_fastAPI'
     PACKAGE: str = __package__.split('.')[0]
-    PROJECT_PATH: Path = Path(sys.path[0])
+    PROJECT_PATH: Path = Path(__file__).parent.parent.resolve()
     RELEASE: str
     TAG: str
     # 默认的视图载入路径，使用支持逗号分割 [xxx/xxx, xxx/xxx]
     VIEW_PATH = 'api/views'
+    # 默认的task载入路径，使用支持逗号分割 [xxx/xxx, xxx/xxx]
+    TASK_PATH = 'worker/task'
 
     # database
     DB_HOST: str = 'postgres'
     DB_PORT: int = 5432
     DB_USERNAME: str = 'postgres'
     DB_PASSWORD: str = 'postgres'
-    DB_TABLE: str = 'postgres'
+    DB_TABLE: str = 'cookiecutter_fastAPI'
     DB_URL: str
     DB_COMMIT: int = 100
 
@@ -41,6 +43,13 @@ class Config(BaseSettings):
     REDIS_DB: int = 0
     REDIS_PASSWORD: str = None
     REDIS_SOCKET_TIMEOUT: str = None
+
+    # rabbitmq
+    RABBIT_MQ_HOST: str = 'rabbit_mq'
+    RABBIT_MQ_PORT: int = 5672
+    RABBIT_MQ_USERNAME: str = 'rabbitmq'
+    RABBIT_MQ_PASSWORD: str = 'rabbitmq'
+    RABBIT_MQ_VHOST: str = ''
 
     # 最大任务池大小
     POOL_SIZE: int = 10
@@ -57,7 +66,7 @@ class Config(BaseSettings):
         return getattr(self, item, default)
 
     def __setitem__(self, key, value) -> None:
-        return self.__setattr__(key, value)
+        return self.__poertysetattr__(key, value)
 
     def __getitem__(self, item) -> Any:
         return getattr(self, item)
@@ -75,6 +84,18 @@ class Config(BaseSettings):
                f"{self.DB_USERNAME}:{self.DB_PASSWORD}@" \
                f"{self.DB_HOST}:{self.DB_PORT}/" \
                f"{self.DB_TABLE}"
+
+    @property
+    def RABBIT_MQ_URL(self) -> str:
+        return f'amqp://{self.RABBIT_MQ_USERNAME}:{self.RABBIT_MQ_PASSWORD}@' \
+               f'{self.RABBIT_MQ_HOST}:{self.RABBIT_MQ_PORT}/' \
+               f'{self.RABBIT_MQ_VHOST}'
+
+    @property
+    def CELERY_SQLALCHEMY_URL(self):
+        return f'db+postgresql://{self.DB_USERNAME}:{self.DB_PASSWORD}@' \
+               f'{self.DB_HOST}:{self.DB_PORT}/' \
+               f'{self.DB_TABLE}'
 
     @property
     def RELEASE(self) -> str:

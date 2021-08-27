@@ -8,3 +8,5 @@ from .config import Config
 
 config = Config()
 log.remove_config('DEBUG' if config.DEBUG else 'INFO')
+
+__all__ = ['config']

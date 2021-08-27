@@ -13,3 +13,8 @@ index_router = APIRouter(
     prefix="",
     tags=["index"]
 )
+
+task_router = APIRouter(
+    prefix="/task",
+    tags=["task"]
+)

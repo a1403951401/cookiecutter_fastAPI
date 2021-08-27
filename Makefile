@@ -1,7 +1,7 @@
 all:$object
 
 SERVICE?=cookiecutter_fast_api
-RELEASE?=$(shell poetry version -s)
+RELEASE?=$(shell cat RELEASE)
 BUILD?=$(shell (git rev-parse HEAD) | cut -c1-7)
 
 POD?=$(shell docker ps -q -a)

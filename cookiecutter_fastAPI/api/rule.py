@@ -1,19 +1,10 @@
-import pkgutil
-from importlib import import_module
+from loguru import logger
 
 from cookiecutter_fastAPI.api.base.event import app
 from cookiecutter_fastAPI.api.base.exceptions import exception_handler
 from cookiecutter_fastAPI.api.base.router import routers
 from cookiecutter_fastAPI.config import config
-from loguru import logger
-
-
-def import_paths(*module_list: str):
-    for filefiner, name, ispkg in pkgutil.iter_modules([config.PROJECT_PATH.joinpath(*module_list)]):
-        import_paths(*module_list, name)
-        if import_module(".".join([config.PACKAGE, *module_list, name])):
-            logger.debug(f"import {'.'.join([config.PACKAGE, *module_list, name])}")
-
+from cookiecutter_fastAPI.lib import import_paths
 
 # 载入默认视图
 for view in config.VIEW_PATH.split(','):

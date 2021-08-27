@@ -11,6 +11,20 @@ services:
           cpus: '0.20'
           memory: 256M
 
+  rabbit_mq:
+    image: rabbitmq:management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      - RABBITMQ_DEFAULT_USER=rabbitmq
+      - RABBITMQ_DEFAULT_PASS=rabbitmq
+    deploy:
+      resources:
+        limits:
+          cpus: '0.20'
+          memory: 512M
+
   postgres:
     image: postgres
     ports:
@@ -21,12 +35,13 @@ services:
       resources:
         limits:
           cpus: '0.20'
-          memory: 256M
+          memory: 512M
 
   cookiecutter_fast_api:
     build:
       context: .
       dockerfile: Dockerfile
+    image: cookiecutter_fast_api
     ports:
       - "8000:8000"
     env_file:
@@ -38,18 +53,21 @@ services:
     depends_on:
       - redis
       - postgres
+      - rabbit_mq
 
-#  cookiecutter_fast_api_worker:
-#    build:
-#      context: .
-#      dockerfile: Dockerfile
-#    command: celery worker *
-#    env_file:
-#      - docker-compose.env
-#    environment:
-#      - DEBUG=true
-#    volumes:
-#      - ./:/app
-#    depends_on:
-#      - redis
-#      - postgres
+  cookiecutter_fast_api_worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: cookiecutter_fast_api
+    command: celery -A cookiecutter_fastAPI.worker.celery_worker worker -l info
+    env_file:
+      - docker-compose.env
+    environment:
+      - DEBUG=true
+    volumes:
+      - ./:/app
+    depends_on:
+      - redis
+      - postgres
+      - rabbit_mq
